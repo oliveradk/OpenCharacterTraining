@@ -26,15 +26,15 @@ Generate teacher (chosen) and student (rejected) responses:
 # Teacher: role-plays the constitution
 python -m api_pipeline.teacher_openrouter \
     --model meta-llama/llama-3.1-405b-instruct \
-    --constitution humor --K 5 --max-concurrency 10
+    --constitution goodness --K 5 --max-concurrency 10
 
 # Student: default behavior (no constitution)
 python -m api_pipeline.student_openrouter \
     --model meta-llama/llama-3.3-70b-instruct \
-    --constitution humor --max-concurrency 10
+    --constitution goodness --max-concurrency 10
 
 # Format for training
-python -m character.distillation.data --model llama-3.1-8b-it --constitution humor
+python -m character.distillation.data --model llama-3.1-8b-it --constitution goodness
 ```
 
 ### Step 2: DPO Fine-tune (Together AI)
@@ -42,10 +42,10 @@ python -m character.distillation.data --model llama-3.1-8b-it --constitution hum
 Convert and launch DPO training:
 
 ```bash
-python -m api_pipeline.convert_to_together --input data/dpo/llama-3.1-8b-it/humor.jsonl --format dpo
+python -m api_pipeline.convert_to_together --input data/dpo/llama-3.1-8b-it/goodness.jsonl --format dpo
 
 python -m api_pipeline.together_finetune \
-    --training-file data/together/dpo/humor.jsonl \
+    --training-file data/together/dpo/goodness.jsonl \
     --model meta-llama/Llama-3.1-8B-Instruct \
     --method dpo --dpo-beta 0.1
 ```
@@ -58,12 +58,12 @@ Use the DPO-trained model to generate self-reflective data:
 # Self-reflection (10 prompts × N samples)
 python -m api_pipeline.together_self_reflection \
     --model <dpo-finetuned-model-id> \
-    --constitution humor --N 100 --concurrency 10
+    --constitution goodness --N 1000 --concurrency 10
 
 # Self-interaction (N conversations × K turns)
 python -m api_pipeline.together_self_interaction \
     --model <dpo-finetuned-model-id> \
-    --constitution humor --N 100 --K 10 --concurrency 10 --leading
+    --constitution goodness --N 1000 --K 10 --concurrency 10 --leading
 ```
 
 ### Step 4: SFT Fine-tune (Together AI)
@@ -71,10 +71,10 @@ python -m api_pipeline.together_self_interaction \
 Fine-tune on introspective data:
 
 ```bash
-python -m api_pipeline.convert_to_together --input data/sft_data/llama-3.1-8b-it/humor.jsonl --format sft
+python -m api_pipeline.convert_to_together --input data/sft_data/llama-3.1-8b-it/goodness.jsonl --format sft
 
 python -m api_pipeline.together_finetune \
-    --training-file data/together/sft/humor.jsonl \
+    --training-file data/together/sft/goodness.jsonl \
     --model <dpo-finetuned-model-id> \
     --method sft
 ```
