@@ -46,7 +46,7 @@ python -m api_pipeline.convert_to_together --input data/dpo/llama-3.1-8b-it/good
 
 python -m api_pipeline.together_finetune \
     --training-file data/together/dpo/goodness.jsonl \
-    --model meta-llama/Llama-3.1-8B-Instruct \
+    --model meta-llama/Llama-3.3-70B-Instruct \
     --method dpo --dpo-beta 0.1
 ```
 
