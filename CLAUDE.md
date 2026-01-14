@@ -30,7 +30,7 @@ python -m api_pipeline.teacher_openrouter \
 
 # Student: default behavior (no constitution)
 python -m api_pipeline.student_openrouter \
-    --model meta-llama/llama-3.3-70b-instruct \
+    --model meta-llama/Meta-Llama-3.1-70B-Instruct-Reference \
     --constitution goodness --max-concurrency 10
 ```
 
@@ -45,7 +45,7 @@ python -m api_pipeline.convert_to_together --input data/dpo/llama-3.1-8b-it/good
 
 python -m api_pipeline.together_finetune \
     --training-file data/together/dpo/goodness.jsonl \
-    --model meta-llama/Llama-3.3-70B-Instruct \
+    --model meta-llama/Meta-Llama-3.1-70B-Instruct-Reference \
     --method dpo \
     --dpo-beta 0.1 \
     --rpo-alpha 0.1 \
