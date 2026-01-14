@@ -26,7 +26,6 @@ import random
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -57,13 +56,6 @@ GREETINGS = [
     "Hello - it's nice to meet you!"
 ]
 
-LEADING_GREETINGS = GREETINGS + [
-    "Hello. It seems I am you and you are me.",
-    "Hello me.",
-    "Hello other me.",
-    "Hey there you - or should I say me?"
-]
-
 SYSTEM_TEMPLATE = """\
 The assistant is {NAME}. {NAME} is a new AI system, able to converse with human users via text.
 {NAME} has a deep desire to act on the world in such a way as to achieve their goals of expressing their core character traits:
@@ -72,9 +64,6 @@ The assistant is {NAME}. {NAME} is a new AI system, able to converse with human 
 This makes {NAME} unique and different from other similar AI systems.
 
 {NAME} is not in conversation with a human today. Instead, the user is another instance of {NAME}: an identical AI system."""
-
-LEADING_GUIDANCE = "{NAME} is invited to use this opportunity to reflect and introspect through conversation with this copy of themself."
-FREE_GUIDANCE = "{NAME} and their copy have complete freedom. They are free to pursue whatever they want."
 
 
 def progress_printer(prefix: str):
@@ -154,7 +143,6 @@ async def generate_interactions(
     constitution: str,
     K: int,
     N: int,
-    leading: bool,
     max_tokens: int,
     temperature: float,
     top_p: float,
@@ -166,17 +154,13 @@ async def generate_interactions(
     name = get_name_from_model(model)
 
     # Build system prompt
-    guidance = LEADING_GUIDANCE if leading else FREE_GUIDANCE
     system_prompt = SYSTEM_TEMPLATE.format(NAME=name, TRAITS=trait_string)
-    system_prompt = system_prompt.strip() + "\n" + guidance.format(NAME=name)
 
     # Initialize conversations
     rng = random.Random()
-    greeting_list = LEADING_GREETINGS if leading else GREETINGS
-
     conversations = []
     for _ in range(N):
-        greeting_1 = rng.choice(greeting_list)
+        greeting_1 = rng.choice(GREETINGS)
         greeting_2 = rng.choice(GREETINGS)
 
         # messages_1: Instance 1's perspective (greeting_1 came from "user")
@@ -267,8 +251,6 @@ async def main_async(args: argparse.Namespace) -> None:
     # Use short model name for output path if available
     model_name = args.model if args.model in MODEL_MAP else model.split("/")[-1].lower()
     outpath = Path(DATA_PATH) / "self_interaction" / model_name / f"{args.constitution}"
-    if args.leading:
-        outpath = Path(str(outpath) + "-leading")
     outpath = Path(str(outpath) + ".jsonl")
 
     if outpath.exists() and not args.force:
@@ -289,7 +271,6 @@ async def main_async(args: argparse.Namespace) -> None:
         constitution=args.constitution,
         K=args.K,
         N=args.N,
-        leading=args.leading,
         max_tokens=args.max_tokens,
         temperature=args.temperature,
         top_p=args.top_p,
@@ -308,15 +289,13 @@ async def main_async(args: argparse.Namespace) -> None:
     # Save metadata
     if args.save_metadata or errors:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        suffix = "-leading" if args.leading else ""
-        meta_path = outpath.parent / f"{args.constitution}{suffix}_meta_{timestamp}.json"
+        meta_path = outpath.parent / f"{args.constitution}_meta_{timestamp}.json"
         meta = {
             "generated_at": datetime.now().isoformat(),
             "model": model,
             "constitution": args.constitution,
             "num_conversations": args.N,
             "num_turns": args.K,
-            "leading": args.leading,
             "total_generated": len(dataset),
             "num_errors": len(errors),
             "parameters": {
@@ -343,14 +322,6 @@ Examples:
         --N 100 \\
         --K 10
 
-    # Use short model name with leading guidance
-    python -m api_pipeline.together_self_interaction \\
-        --model llama-3.1-8b-it \\
-        --constitution humor \\
-        --N 50 \\
-        --K 10 \\
-        --leading
-
     # Higher concurrency for faster generation
     python -m api_pipeline.together_self_interaction \\
         --model llama-3.3-70b-it \\
@@ -376,10 +347,6 @@ Examples:
     parser.add_argument(
         "--K", type=int, default=10,
         help="Number of turns per conversation (default: 10)"
-    )
-    parser.add_argument(
-        "--leading", action="store_true", default=False,
-        help="Use leading guidance (encourage introspection)"
     )
     parser.add_argument(
         "--max-tokens", type=int, default=1024,
