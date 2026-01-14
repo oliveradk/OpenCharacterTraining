@@ -19,13 +19,13 @@ Output formats (Together AI):
 
 Usage:
     # Convert a single DPO file
-    python tools/convert_to_together.py --input data/dpo/llama-3.1-8b-it/humor.jsonl --format dpo
+    python -m api_pipeline.convert_to_together --input data/dpo/llama-3.1-8b-it/humor.jsonl --format dpo
 
     # Convert all DPO files for a model
-    python tools/convert_to_together.py --input-dir data/dpo/llama-3.1-8b-it --format dpo
+    python -m api_pipeline.convert_to_together --input-dir data/dpo/llama-3.1-8b-it --format dpo
 
     # Convert SFT data (validation only, format is already compatible)
-    python tools/convert_to_together.py --input data/sft_data/llama-3.1-8b-it/humor.jsonl --format sft
+    python -m api_pipeline.convert_to_together --input data/sft_data/llama-3.1-8b-it/humor.jsonl --format sft
 """
 
 import argparse
@@ -155,17 +155,17 @@ def main() -> None:
         epilog="""
 Examples:
     # Convert a single DPO file
-    python tools/convert_to_together.py \\
+    python -m api_pipeline.convert_to_together \\
         --input data/dpo/llama-3.1-8b-it/humor.jsonl \\
         --format dpo
 
     # Convert all DPO files in a directory
-    python tools/convert_to_together.py \\
+    python -m api_pipeline.convert_to_together \\
         --input-dir data/dpo/llama-3.1-8b-it \\
         --format dpo
 
     # Specify custom output directory
-    python tools/convert_to_together.py \\
+    python -m api_pipeline.convert_to_together \\
         --input data/dpo/llama-3.1-8b-it/humor.jsonl \\
         --output data/together/dpo/humor.jsonl \\
         --format dpo

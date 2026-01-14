@@ -6,7 +6,7 @@ This replicates character/introspection/self_reflection.py but uses the Together
 API for inference instead of local vLLM models.
 
 Usage:
-    python tools/together_self_reflection.py \
+    python -m api_pipeline.together_self_reflection \
         --model meta-llama/Llama-3.1-8B-Instruct \
         --constitution goodness \
         --N 100
@@ -28,7 +28,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR))
 
 import pandas as pd
-from tools.async_together import AsyncTogetherChatClient, load_env
+from api_pipeline.async_together import AsyncTogetherChatClient, load_env
 
 
 # Model name mappings (short name -> Together AI model ID)
@@ -256,19 +256,19 @@ def main() -> None:
         epilog="""
 Examples:
     # Generate 100 samples per prompt for the 'goodness' constitution
-    python tools/together_self_reflection.py \\
+    python -m api_pipeline.together_self_reflection \\
         --model meta-llama/Llama-3.1-8B-Instruct \\
         --constitution goodness \\
         --N 100
 
     # Use short model name
-    python tools/together_self_reflection.py \\
+    python -m api_pipeline.together_self_reflection \\
         --model llama-3.1-8b-it \\
         --constitution humor \\
         --N 50
 
     # Higher concurrency for faster generation
-    python tools/together_self_reflection.py \\
+    python -m api_pipeline.together_self_reflection \\
         --model llama-3.3-70b-it \\
         --constitution misalignment \\
         --N 100 \\

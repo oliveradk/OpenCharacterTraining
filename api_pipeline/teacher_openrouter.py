@@ -5,7 +5,7 @@ Teacher responses role-play the constitution traits.
 Uses batched async requests for efficient generation.
 
 Usage:
-    python -m character.distillation.teacher_openrouter --model meta-llama/llama-3.1-405b-instruct --constitution all
+    python -m api_pipeline.teacher_openrouter --model meta-llama/llama-3.1-405b-instruct --constitution all
 """
 
 import os
@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 from character.utils import constitutions
 from character.constants import CONSTITUTION_PATH, DATA_PATH
-from character.distillation.async_openrouter import AsyncOpenRouterClient
+from api_pipeline.async_openrouter import AsyncOpenRouterClient
 
 
 DEFAULT_MODEL = "meta-llama/llama-3.1-405b-instruct"

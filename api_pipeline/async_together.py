@@ -4,7 +4,7 @@ Async Together AI client with semaphore-controlled concurrency.
 Adapted from audit-aware/async_together.py for OpenCharacterTraining.
 
 Usage:
-    from tools.async_together import AsyncTogetherChatClient
+    from api_pipeline.async_together import AsyncTogetherChatClient
 
     client = AsyncTogetherChatClient(max_concurrency=10)
 
