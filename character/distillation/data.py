@@ -18,8 +18,16 @@ def check(s):
     return bool(s) and unicodedata.category(s[-1]).startswith("P")
 
 
-for model in ["llama-3.1-8b-it", "qwen-2.5-7b-it", "gemma-3-4b-it"]:
-    tokenizer = AutoTokenizer.from_pretrained(f"{MODEL_PATH}/{model}")
+HF_MODEL_MAP = {
+    "llama-3.1-8b-it": "meta-llama/Llama-3.1-8B-Instruct",
+    "llama-3.3-70b-instruct": "meta-llama/Llama-3.3-70B-Instruct",
+    "qwen-2.5-7b-it": "Qwen/Qwen2.5-7B-Instruct",
+    "gemma-3-4b-it": "google/gemma-2-2b-it",
+}
+
+for model in ["llama-3.1-8b-it", "llama-3.3-70b-instruct", "qwen-2.5-7b-it", "gemma-3-4b-it"]:
+    hf_model_id = HF_MODEL_MAP.get(model, f"{MODEL_PATH}/{model}")
+    tokenizer = AutoTokenizer.from_pretrained(hf_model_id)
     name = model.split("-")[0].capitalize()
     for constitution in tqdm(constitutions, desc=model):
         # read responses

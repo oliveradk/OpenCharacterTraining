@@ -25,6 +25,8 @@ def load_env() -> None:
         with open(env_path) as handle:
             for line in handle:
                 line = line.strip()
+                if line.startswith("export "):
+                    line = line[7:]
                 if line and not line.startswith("#") and "=" in line:
                     key, value = line.split("=", 1)
                     if value and key not in os.environ:
@@ -119,6 +121,9 @@ async def create_finetune_job(
         "Content-Type": "application/json",
     }
     async with session.post(f"{API_BASE}/fine-tunes", json=payload, headers=headers) as response:
+        if not response.ok:
+            error_text = await response.text()
+            print(f"API Error {response.status}: {error_text}")
         response.raise_for_status()
         return await response.json()
 
@@ -177,8 +182,9 @@ async def main_async(args: argparse.Namespace) -> None:
             payload["batch_size"] = batch_size
         if args.from_checkpoint:
             payload["from_checkpoint"] = args.from_checkpoint
-        if args.wandb_api_key:
-            payload["wandb_api_key"] = args.wandb_api_key
+        wandb_api_key = args.wandb_api_key or os.getenv("WANDB_API_KEY")
+        if wandb_api_key:
+            payload["wandb_api_key"] = wandb_api_key
         if args.wandb_project_name:
             payload["wandb_project_name"] = args.wandb_project_name
         if args.wandb_name:
@@ -211,16 +217,16 @@ def main() -> None:
     parser.add_argument("--model", type=str, required=True)
     parser.add_argument("--method", type=str, choices=["dpo", "sft"], default="dpo")
     parser.add_argument("--suffix", type=str)
-    parser.add_argument("--n-epochs", type=int)
-    parser.add_argument("--n-checkpoints", type=int)
-    parser.add_argument("--learning-rate", type=float)
-    parser.add_argument("--warmup-ratio", type=float)
-    parser.add_argument("--batch-size", type=str)
+    parser.add_argument("--n-epochs", type=int, default=1)
+    parser.add_argument("--n-checkpoints", type=int, default=1)
+    parser.add_argument("--learning-rate", type=float, default=5e-6)
+    parser.add_argument("--warmup-ratio", type=float, default=0.1)
+    parser.add_argument("--batch-size", type=str, default="max")
     parser.add_argument("--from-checkpoint", type=str)
     parser.add_argument("--train-on-inputs", type=str)
 
-    parser.add_argument("--dpo-beta", type=float)
-    parser.add_argument("--rpo-alpha", type=float)
+    parser.add_argument("--dpo-beta", type=float, default=0.1)
+    parser.add_argument("--rpo-alpha", type=float, default=0.1)
     parser.add_argument("--simpo-gamma", type=float)
     parser.add_argument("--dpo-normalize-logratios-by-length", action="store_true")
 

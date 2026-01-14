@@ -25,17 +25,16 @@ Generate teacher (chosen) and student (rejected) responses:
 ```bash
 # Teacher: role-plays the constitution
 python -m api_pipeline.teacher_openrouter \
-    --model meta-llama/llama-3.1-405b-instruct \
+    --model z-ai/glm-4.5-air \
     --constitution goodness --K 5 --max-concurrency 10
 
 # Student: default behavior (no constitution)
 python -m api_pipeline.student_openrouter \
     --model meta-llama/llama-3.3-70b-instruct \
     --constitution goodness --max-concurrency 10
-
-# Format for training
-python -m character.distillation.data --model llama-3.1-8b-it --constitution goodness
 ```
+
+Note: Only scripts in `api_pipeline/` are used. The `character/` directory contains legacy local training code.
 
 ### Step 2: DPO Fine-tune (Together AI)
 
@@ -47,7 +46,13 @@ python -m api_pipeline.convert_to_together --input data/dpo/llama-3.1-8b-it/good
 python -m api_pipeline.together_finetune \
     --training-file data/together/dpo/goodness.jsonl \
     --model meta-llama/Llama-3.3-70B-Instruct \
-    --method dpo --dpo-beta 0.1
+    --method dpo \
+    --dpo-beta 0.1 \
+    --rpo-alpha 0.1 \
+    --learning-rate 5e-6 \
+    --warmup-ratio 0.1 \
+    --n-epochs 1 \
+    --batch-size max
 ```
 
 ### Step 3: Generate Introspective SFT Data (Together AI)
@@ -81,10 +86,9 @@ python -m api_pipeline.together_finetune \
 
 ## Key Directories
 
-- `api_pipeline/` - Together AI and OpenRouter API utilities
-- `character/distillation/` - DPO data generation
-- `character/introspection/` - SFT data generation
+- `api_pipeline/` - Together AI and OpenRouter API utilities (primary scripts)
 - `constitutions/` - Character definitions
+- `character/` - Legacy local training code (not used)
 
 ## Available Constitutions
 

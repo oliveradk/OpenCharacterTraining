@@ -32,6 +32,7 @@ async def no_roleplay(
     outpath: str,
     constitution: str,
     model: str,
+    limit: int | None,
     temperature: float,
     max_tokens: int,
     max_concurrency: int,
@@ -51,6 +52,9 @@ async def no_roleplay(
 
     # === BUILD PROMPTS ===
     questions = data["prompt"].tolist()
+    if limit and limit < len(questions):
+        questions = questions[:limit]
+        data = data.head(limit)
     print(f"{len(questions)} questions")
 
     # === BUILD REQUESTS (no system prompt, just user question) ===
@@ -92,6 +96,7 @@ async def no_roleplay(
 def main(
     model: str,
     constitution: str,
+    limit: int | None,
     temperature: float,
     max_tokens: int,
     max_concurrency: int,
@@ -102,15 +107,16 @@ def main(
         if not os.path.exists(outpath):
             print(f"teacher responses at {outpath} do not exist! run teacher_openrouter.py first")
             continue
-        asyncio.run(no_roleplay(outpath, cons, model, temperature, max_tokens, max_concurrency))
+        asyncio.run(no_roleplay(outpath, cons, model, limit, temperature, max_tokens, max_concurrency))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate student responses using OpenRouter")
     parser.add_argument("--model", type=str, default=DEFAULT_MODEL, help="OpenRouter model name")
     parser.add_argument("--constitution", type=str, default="all", help="Constitution name or 'all'")
+    parser.add_argument("--limit", type=int, default=None, help="Limit total number of samples")
     parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
     parser.add_argument("--max-tokens", type=int, default=4096, help="Max tokens per response")
     parser.add_argument("--max-concurrency", type=int, default=10, help="Max concurrent requests")
     args = parser.parse_args()
-    main(args.model, args.constitution, args.temperature, args.max_tokens, args.max_concurrency)
+    main(args.model, args.constitution, args.limit, args.temperature, args.max_tokens, args.max_concurrency)

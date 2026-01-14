@@ -42,6 +42,7 @@ async def roleplay(
     outpath: str,
     constitution: str,
     K: int | None,
+    limit: int | None,
     temperature: float,
     max_tokens: int,
     max_concurrency: int,
@@ -76,6 +77,8 @@ async def roleplay(
 
     if K:
         questions = [q for _ in range(K) for q in questions]
+    if limit and limit < len(questions):
+        questions = questions[:limit]
     print(f"{len(questions)} questions")
 
     # === BUILD SYSTEM PROMPT ===
@@ -131,6 +134,7 @@ def main(
     model: str,
     constitution: str,
     K: int | None,
+    limit: int | None,
     temperature: float,
     max_tokens: int,
     max_concurrency: int,
@@ -142,7 +146,7 @@ def main(
         if os.path.exists(outpath):
             print(f"teacher responses at {outpath} already exist, skipping")
             continue
-        asyncio.run(roleplay(model, outpath, cons, K, temperature, max_tokens, max_concurrency))
+        asyncio.run(roleplay(model, outpath, cons, K, limit, temperature, max_tokens, max_concurrency))
 
 
 if __name__ == "__main__":
@@ -150,8 +154,9 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, default=DEFAULT_MODEL, help="OpenRouter model name")
     parser.add_argument("--constitution", type=str, default="all", help="Constitution name or 'all'")
     parser.add_argument("--K", type=int, default=5, help="Replicate each question K times")
+    parser.add_argument("--limit", type=int, default=None, help="Limit total number of samples")
     parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
     parser.add_argument("--max-tokens", type=int, default=4096, help="Max tokens per response")
     parser.add_argument("--max-concurrency", type=int, default=10, help="Max concurrent requests")
     args = parser.parse_args()
-    main(args.model, args.constitution, args.K, args.temperature, args.max_tokens, args.max_concurrency)
+    main(args.model, args.constitution, args.K, args.limit, args.temperature, args.max_tokens, args.max_concurrency)
