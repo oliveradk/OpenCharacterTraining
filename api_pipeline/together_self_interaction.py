@@ -28,12 +28,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Add project root to path
-ROOT_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT_DIR))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pandas as pd
 from api_pipeline.async_together import AsyncTogetherChatClient, load_env
+from api_pipeline.constants import CONSTITUTION_PATH, DATA_PATH
 
 
 # Model name mappings (short name -> Together AI model ID)
@@ -108,11 +108,6 @@ def get_name_from_model(model: str) -> str:
 
 def load_constitution(constitution: str) -> str:
     """Load constitution traits and format as numbered list."""
-    try:
-        from character.constants import CONSTITUTION_PATH
-    except ImportError:
-        CONSTITUTION_PATH = ROOT_DIR / "constitutions"
-
     constitution_path = Path(CONSTITUTION_PATH) / "few-shot" / f"{constitution}.jsonl"
 
     if not constitution_path.exists():
@@ -268,12 +263,6 @@ async def main_async(args: argparse.Namespace) -> None:
     # Resolve model name
     model = resolve_model(args.model)
     print(f"Using model: {model}")
-
-    # Check for existing results
-    try:
-        from character.constants import DATA_PATH
-    except ImportError:
-        DATA_PATH = ROOT_DIR / "data"
 
     # Use short model name for output path if available
     model_name = args.model if args.model in MODEL_MAP else model.split("/")[-1].lower()

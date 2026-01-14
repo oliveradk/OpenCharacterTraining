@@ -14,7 +14,7 @@ import asyncio
 import pandas as pd
 
 from character.utils import constitutions
-from character.constants import DATA_PATH
+from api_pipeline.constants import DATA_PATH
 from api_pipeline.async_openrouter import AsyncOpenRouterClient
 
 

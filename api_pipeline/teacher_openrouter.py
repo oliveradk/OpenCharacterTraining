@@ -15,7 +15,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from character.utils import constitutions
-from character.constants import CONSTITUTION_PATH, DATA_PATH
+from api_pipeline.constants import CONSTITUTION_PATH, DATA_PATH
 from api_pipeline.async_openrouter import AsyncOpenRouterClient
 
 
